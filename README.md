@@ -1,114 +1,80 @@
 # A.S.S. Lover — Frontend
 
-> React + TypeScript frontend pro systém A.S.S. Lover
+> React + TypeScript frontend for the A.S.S. Lover system.
 
-## Přehled
+## Overview
 
-Frontend poskytuje uživatelské rozhraní pro interakci se systémem A.S.S. Lover — inteligentní platformou pro sběr webového obsahu a RAG vyhledávání.
+The frontend provides the user interface for interacting with the A.S.S. Lover system — an intelligent platform for web content ingestion and RAG-powered search.
 
-## Stránky a funkcionalita
+## Features
 
 ### RAG Search (`/search`)
-- Zadávání dotazů v přirozeném jazyce
-- Přepínání mezi RAG a no-RAG režimem
-- Zobrazení odpovědi s citacemi zdrojů
-- Náhled extrahovaných dokumentů
-- Export výsledků
+- Natural language querying
+- Toggle between RAG and no-RAG modes
+- Citation display for source documents
+- Extracted file previews
+- Results export
 
-### Ingestion (`/ingestion`)
-- Přidávání nových webových zdrojů
-- Konfigurace deep crawl (hloubka, strategie)
-- Nastavení právního základu (public, consent, contract)
-- Plánování automatického sběru
-- Správa a monitoring jobů
-- Správa incidentů (CAPTCHA, chyby)
+### Ingestion Management (`/ingestion`)
+- Add and configure web sources
+- Deep crawl configuration (depth, strategy)
+- Legal basis selection (public, consent, contract)
+- Auto-scheduling
+- Job monitoring and incident resolution (CAPTCHA detection)
 
 ### Analytics (`/analytics`)
-- Přehled statistik systému
-- Počty jobů (completed, failed, running, CAPTCHA)
-- Breakdown strategií ingestu
-- Evidence artefakty (screenshoty, markdown soubory)
-- Historie posledních jobů
+- System statistics overview
+- Job status breakdown
+- Ingestion strategy metrics
+- Evidence artifact browsing (screenshots, markdown files)
 
-### User Management (`/admin`)
-- Správa uživatelů a jejich rolí (pouze admin)
-- Synchronizace s Keycloak
+## Tech Stack
 
-## Technologie
-
-| Komponenta | Technologie |
+| Component | Technology |
 |---|---|
 | Framework | React 18 + TypeScript |
-| Build tool | Vite |
+| Build Tool | Vite |
 | Styling | Tailwind CSS |
-| Animace | Framer Motion |
+| Animations | Framer Motion |
 | Auth | Keycloak JS (`keycloak-js`) |
-| HTTP klient | Axios |
-| Markdown | `react-markdown` |
-| Ikony | Lucide React |
+| Icons | Lucide React |
 
-## Autentizace
+## Authentication
 
-Frontend používá Keycloak OIDC flow:
+The frontend implements the Keycloak OIDC flow:
+1. User login triggers a redirect to Keycloak.
+2. Upon successful login, Keycloak returns a JWT access token.
+3. The token is stored in memory and sent with every API request.
+4. An Axios interceptor automatically refreshes the token before it expires.
 
-1. Uživatel klikne přihlásit → redirect na Keycloak
-2. Po přihlášení Keycloak vrátí JWT access token
-3. Token se ukládá do paměti a posílá s každým API požadavkem
-4. Axios interceptor automaticky obnovuje token před expirací
+## Configuration
 
-### Role
-| Role | Přístup |
-|---|---|
-| `admin` | Všechny stránky + správa uživatelů + ingestion |
-| `user` | RAG Search |
-
-## Konfigurace
-
-### Proměnné prostředí
-
+### Environment Variables
+Vite uses variables prefixed with `VITE_`.
 ```bash
-# .env.production
-VITE_KEYCLOAK_URL=https://váš-server-ip/auth
+VITE_KEYCLOAK_URL=https://your-server-ip/auth
 ```
 
-### Keycloak nastavení (`src/keycloak.ts`)
+## Local Development
 
-```typescript
-const keycloak = new Keycloak({
-  url: import.meta.env.VITE_KEYCLOAK_URL,
-  realm: "rag",
-  clientId: "rag-app",
-});
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Lokální vývoj
+2. Run development server:
+   ```bash
+   npm run dev
+   ```
+   The server will run on `http://localhost:5173`.
 
-```bash
-npm install
-npm run dev
-```
-
-Vývojový server běží na `http://localhost:5173`.
-
-Pro lokální vývoj je potřeba běžící backend na `http://localhost:8000` a Keycloak na `http://localhost:8080`.
-
-## Build a nasazení
+## Build and Deployment
 
 ```bash
 npm run build
 ```
+The output will be generated in the `dist/` directory. For production deployment via Docker, see [ass-lover-infra](https://github.com/Deatrix09/ass-lover-infra).
 
-Výstup je v adresáři `dist/` — statické soubory servírované přes nginx.
+## License
 
-Produkční nasazení přes Docker (viz [rag-infra](https://github.com/abakan21/rag-infra)).
-
-## API komunikace
-
-Frontend komunikuje s backendem přes nginx reverse proxy:
-
-```
-https://server/api/  →  backend:8000/api/
-https://server/auth/ →  keycloak:8080/auth/
-```
-
-Konfigurace v `src/api.ts` — Axios instance s automatickým přidáváním JWT tokenu.
+MIT
